@@ -15,21 +15,22 @@ app.use("/customer", session({
 }));
 
 app.use("/customer/auth/*", function auth(req, res, next) {
-  const token = req.session.token;
-
-  if (!token) {
-    return res.status(401).json({ msg: 'No token, authorization denied' });
-  }
-
-  jwt.verify(token, 'secret_key', (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ msg: 'Token is not valid' });
+    const token = req.headers['authorization']?.split(' ')[1]; 
+  
+    if (!token) {
+      return res.status(401).json({ msg: 'No token, authorization denied' });
     }
-
-    req.user = decoded.user;
-    next();
+  
+    jwt.verify(token, 'your_jwt_secret_key', (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ msg: 'Token is not valid' });
+      }
+  
+      req.user = decoded;
+      next();
+    });
   });
-});
+  
 
 const PORT = 5000;
 
