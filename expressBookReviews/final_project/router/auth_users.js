@@ -52,12 +52,16 @@ regd_users.post("/login", (req, res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const reviewText = req.body.review;
-  const username = req.user.username;
+  const username = req.user.username; 
 
-  let book = books.find(book => book.isbn === isbn);
+  const book = books[isbn]; 
 
   if (!book) {
     return res.status(404).json({ message: "Book not found" });
+  }
+
+  if (!Array.isArray(book.reviews)) {
+    book.reviews = []; 
   }
 
   let review = book.reviews.find(review => review.username === username);
@@ -71,14 +75,19 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   }
 });
 
+
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
-  const username = req.user.username;
+  const username = req.user.username; 
 
-  let book = books.find(book => book.isbn === isbn);
+  const book = books[isbn]; 
 
   if (!book) {
     return res.status(404).json({ message: "Book not found" });
+  }
+
+  if (!Array.isArray(book.reviews)) {
+    return res.status(404).json({ message: "No reviews found for this book" });
   }
 
   const initialReviewCount = book.reviews.length;
@@ -90,6 +99,7 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     return res.status(404).json({ message: "Review not found for the user" });
   }
 });
+
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
